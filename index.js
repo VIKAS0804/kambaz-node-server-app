@@ -14,12 +14,22 @@ import Hello from "./Hello.js";
 const app = express();
 
 // CORS configuration - MUST come before session
-app.use(
-  cors({
-    credentials: true,
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-  })
-);
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://kambaz-next-js1-git-a5-vikas0804s-projects.vercel.app",
+  "https://kambaz-next-js1-2cfzq8ro1-vikas0804s-projects.vercel.app"
+];
+
+app.use(cors({
+  credentials: true,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 
 // Session configuration
 const sessionOptions = {
