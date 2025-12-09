@@ -1,50 +1,42 @@
-import { v4 as uuidv4 } from "uuid";
+import EnrollmentModel from "./model.js";
 
 export default function EnrollmentsDao(db) {
-  const enrollUserInCourse = (userId, courseId) => {
-    const { enrollments } = db;
-    // Check if already enrolled
-    const existingEnrollment = enrollments.find(
-      (e) => e.user === userId && e.course === courseId
-    );
-    if (existingEnrollment) {
-      return existingEnrollment;
-    }
-    const newEnrollment = { _id: uuidv4(), user: userId, course: courseId };
-    db.enrollments = [...db.enrollments, newEnrollment];
-    return newEnrollment;
+  const findCoursesForUser = async (userId) => {
+    const enrollments = await EnrollmentModel.find({ user: userId }).populate("course");
+    return enrollments.map(enrollment => enrollment.course);
   };
 
-  const unenrollUserFromCourse = (userId, courseId) => {
-    const { enrollments } = db;
-    db.enrollments = enrollments.filter(
-      (e) => !(e.user === userId && e.course === courseId)
-    );
+  const findUsersForCourse = async (courseId) => {
+    const enrollments = await EnrollmentModel.find({ course: courseId }).populate("user");
+    return enrollments.map(enrollment => enrollment.user);
   };
 
-  const findEnrollmentsForUser = (userId) => {
-    const { enrollments } = db;
-    return enrollments.filter((e) => e.user === userId);
+  const enrollUserInCourse = async (userId, courseId) => {
+    const enrollment = await EnrollmentModel.create({
+      _id: `${userId}-${courseId}`,
+      user: userId,
+      course: courseId,
+      enrollmentDate: new Date(),
+      status: "ENROLLED",
+    });
+    return enrollment;
   };
 
-  const findEnrollmentsForCourse = (courseId) => {
-    const { enrollments } = db;
-    return enrollments.filter((e) => e.course === courseId);
+  const unenrollUserFromCourse = async (userId, courseId) => {
+    const result = await EnrollmentModel.deleteOne({ user: userId, course: courseId });
+    return result;
   };
 
-  const findUsersForCourse = (courseId) => {
-    const { enrollments, users } = db;
-    const enrolledUserIds = enrollments
-      .filter((e) => e.course === courseId)
-      .map((e) => e.user);
-    return users.filter((u) => enrolledUserIds.includes(u._id));
+  const unenrollAllUsersFromCourse = async (courseId) => {
+    const result = await EnrollmentModel.deleteMany({ course: courseId });
+    return result;
   };
 
   return {
+    findCoursesForUser,
+    findUsersForCourse,
     enrollUserInCourse,
     unenrollUserFromCourse,
-    findEnrollmentsForUser,
-    findEnrollmentsForCourse,
-    findUsersForCourse,
+    unenrollAllUsersFromCourse,
   };
 }
