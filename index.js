@@ -25,6 +25,12 @@ const allowedOrigins = [
   "https://kambaz-next-js1-2cfzq8ro1-vikas0804s-projects.vercel.app"
 ];
 
+// Add CLIENT_URL from environment variable
+if (process.env.CLIENT_URL) {
+  const envUrls = process.env.CLIENT_URL.split(',').map(url => url.trim());
+  allowedOrigins.push(...envUrls);
+}
+
 app.use(cors({
   credentials: true,
   origin: function (origin, callback) {
