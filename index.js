@@ -23,7 +23,10 @@ const allowedOrigins = [
 app.use(cors({
   credentials: true,
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -43,6 +46,13 @@ if (process.env.SERVER_ENV !== "development") {
   sessionOptions.cookie = {
     sameSite: "none",
     secure: true,
+  };
+} else {
+  // Development: localhost with http
+  sessionOptions.cookie = {
+    sameSite: "lax",
+    secure: false,
+    httpOnly: true,
   };
 }
 
