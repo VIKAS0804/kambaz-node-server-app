@@ -5,7 +5,7 @@ import EnrollmentsDao from "../Enrollments/dao.js";
 export default function CoursesDao(db) {
   const enrollmentsDao = EnrollmentsDao(db);
   const findAllCourses = () => {
-    return CourseModel.find({}, { name: 1, description: 1 });
+    return CourseModel.find({});
   };
 
   const findCourseById = (courseId) => {

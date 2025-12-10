@@ -6,6 +6,11 @@ export default function EnrollmentsDao(db) {
     return enrollments.map(enrollment => enrollment.course);
   };
 
+  const findEnrollmentsForUser = async (userId) => {
+    const enrollments = await EnrollmentModel.find({ user: userId }).populate("course").populate("user");
+    return enrollments;
+  };
+
   const findUsersForCourse = async (courseId) => {
     const enrollments = await EnrollmentModel.find({ course: courseId }).populate("user");
     return enrollments.map(enrollment => enrollment.user);
@@ -34,6 +39,7 @@ export default function EnrollmentsDao(db) {
 
   return {
     findCoursesForUser,
+    findEnrollmentsForUser,
     findUsersForCourse,
     enrollUserInCourse,
     unenrollUserFromCourse,
