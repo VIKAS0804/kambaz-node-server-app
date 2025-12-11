@@ -58,12 +58,20 @@ export default function UserRoutes(app, db) {
 
   const updateUser = async (req, res) => {
     try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      if (currentUser.role !== "ADMIN") {
+        return res.status(403).json({ message: "Only administrators can perform this action" });
+      }
+      
       const userId = req.params.userId;
       const userUpdates = req.body;
       await dao.updateUser(userId, userUpdates);
-      const currentUser = await dao.findUserById(userId);
-      req.session["currentUser"] = currentUser;
-      res.json(currentUser);
+      const updatedUser = await dao.findUserById(userId);
+      res.json(updatedUser);
     } catch (error) {
       res.status(500).json({ message: "Error updating user", error: error.message });
     }
@@ -71,6 +79,11 @@ export default function UserRoutes(app, db) {
 
   const findAllUsers = async (req, res) => {
     try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const { role, name } = req.query;
       
       if (role) {
@@ -94,6 +107,11 @@ export default function UserRoutes(app, db) {
 
   const findUserById = async (req, res) => {
     try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const { userId } = req.params;
       const user = await dao.findUserById(userId);
       res.json(user);
@@ -104,6 +122,15 @@ export default function UserRoutes(app, db) {
 
   const deleteUser = async (req, res) => {
     try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      if (currentUser.role !== "ADMIN") {
+        return res.status(403).json({ message: "Only administrators can perform this action" });
+      }
+      
       const { userId } = req.params;
       await dao.deleteUser(userId);
       res.sendStatus(204);
@@ -114,6 +141,15 @@ export default function UserRoutes(app, db) {
 
   const createUser = async (req, res) => {
     try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      if (currentUser.role !== "ADMIN") {
+        return res.status(403).json({ message: "Only administrators can perform this action" });
+      }
+      
       const user = await dao.createUser(req.body);
       res.json(user);
     } catch (error) {

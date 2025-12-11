@@ -2,7 +2,7 @@ import EnrollmentModel from "./model.js";
 
 export default function EnrollmentsDao(db) {
   const findCoursesForUser = async (userId) => {
-    const enrollments = await EnrollmentModel.find({ user: userId }).populate("course");
+    const enrollments = await EnrollmentModel.find({ user: userId }).populate("course", "name description");
     return enrollments.map(enrollment => enrollment.course);
   };
 

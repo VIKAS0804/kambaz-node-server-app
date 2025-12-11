@@ -68,7 +68,7 @@ Lab5(app);
 UserRoutes(app, Database);
 CourseRoutes(app, Database);
 ModuleRoutes(app, Database);
-AssignmentRoutes(app);
+AssignmentRoutes(app, Database);
 EnrollmentRoutes(app, Database);
 
 const PORT = process.env.PORT || 4000;

@@ -15,6 +15,15 @@ export default function ModuleRoutes(app, db) {
 
   const createModuleForCourse = async (req, res) => {
     try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      if (currentUser.role !== "FACULTY") {
+        return res.status(403).json({ message: "Only faculty can perform this action" });
+      }
+      
       const { courseId } = req.params;
       const newModule = await dao.createModule(courseId, req.body);
       res.json(newModule);
@@ -25,6 +34,15 @@ export default function ModuleRoutes(app, db) {
 
   const updateModule = async (req, res) => {
     try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      if (currentUser.role !== "FACULTY") {
+        return res.status(403).json({ message: "Only faculty can perform this action" });
+      }
+      
       const { courseId, moduleId } = req.params;
       const moduleUpdates = req.body;
       const updatedModule = await dao.updateModule(courseId, moduleId, moduleUpdates);
@@ -36,6 +54,15 @@ export default function ModuleRoutes(app, db) {
 
   const deleteModule = async (req, res) => {
     try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      if (currentUser.role !== "FACULTY") {
+        return res.status(403).json({ message: "Only faculty can perform this action" });
+      }
+      
       const { courseId, moduleId } = req.params;
       await dao.deleteModule(courseId, moduleId);
       res.sendStatus(204);

@@ -1,24 +1,55 @@
-import Database from "../Database/index.js";
+import { v4 as uuidv4 } from "uuid";
+import AssignmentModel from "./model.js";
 
-export function findAssignmentsForCourse(courseId) {
-  const { assignments } = Database;
-  return assignments.filter((assignment) => assignment.course === courseId);
-}
+export default function AssignmentsDao(db) {
+  const findAssignmentsForCourse = async (courseId) => {
+    console.log("=== DAO: FIND ASSIGNMENTS ===");
+    console.log("Course ID:", courseId);
+    const assignments = await AssignmentModel.find({ course: courseId });
+    console.log("=== DAO: FOUND ASSIGNMENTS ===");
+    console.log("Count:", assignments.length);
+    console.log("Assignments:", assignments);
+    return assignments;
+  };
 
-export function createAssignment(assignment) {
-  const newAssignment = { ...assignment, _id: Date.now().toString() };
-  Database.assignments = [...Database.assignments, newAssignment];
-  return newAssignment;
-}
+  const createAssignment = async (assignment) => {
+    console.log("=== DAO: CREATE ASSIGNMENT ===");
+    console.log("Assignment data received:", assignment);
+    const newAssignment = { ...assignment, _id: uuidv4() };
+    console.log("Generated _id:", newAssignment._id);
+    console.log("New assignment object:", newAssignment);
+    const result = await AssignmentModel.create(newAssignment);
+    console.log("=== DAO: ASSIGNMENT CREATED IN DB ===");
+    console.log("Created assignment:", result);
+    return result;
+  };
 
-export function deleteAssignment(assignmentId) {
-  const { assignments } = Database;
-  Database.assignments = assignments.filter((assignment) => assignment._id !== assignmentId);
-}
+  const deleteAssignment = async (assignmentId) => {
+    console.log("=== DAO: DELETE ASSIGNMENT ===");
+    console.log("Assignment ID to delete:", assignmentId);
+    const result = await AssignmentModel.findByIdAndDelete(assignmentId);
+    console.log("=== DAO: DELETE RESULT ===");
+    console.log("Delete result:", result);
+    return result;
+  };
 
-export function updateAssignment(assignmentId, assignmentUpdates) {
-  const { assignments } = Database;
-  const assignment = assignments.find((assignment) => assignment._id === assignmentId);
-  Object.assign(assignment, assignmentUpdates);
-  return assignment;
+  const updateAssignment = async (assignmentId, assignmentUpdates) => {
+    console.log("=== DAO: UPDATE ASSIGNMENT ===");
+    console.log("Assignment ID:", assignmentId);
+    console.log("Update data:", assignmentUpdates);
+    const result = await AssignmentModel.updateOne(
+      { _id: assignmentId },
+      { $set: assignmentUpdates }
+    );
+    console.log("=== DAO: UPDATE RESULT ===");
+    console.log("Update result:", result);
+    return result;
+  };
+
+  return {
+    findAssignmentsForCourse,
+    createAssignment,
+    deleteAssignment,
+    updateAssignment,
+  };
 }

@@ -31,10 +31,11 @@ export default function ModulesDao(db) {
   };
 
   const deleteModule = async (courseId, moduleId) => {
-    await CourseModel.updateOne(
+    const result = await CourseModel.updateOne(
       { _id: courseId },
       { $pull: { modules: { _id: moduleId } } }
     );
+    return result;
   };
 
   return {

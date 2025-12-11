@@ -1,11 +1,12 @@
 import { v4 as uuidv4 } from "uuid";
 import CourseModel from "./model.js";
 import EnrollmentsDao from "../Enrollments/dao.js";
+import EnrollmentModel from "../Enrollments/model.js";
 
 export default function CoursesDao(db) {
   const enrollmentsDao = EnrollmentsDao(db);
   const findAllCourses = () => {
-    return CourseModel.find({});
+    return CourseModel.find({}, { name: 1, description: 1 });
   };
 
   const findCourseById = (courseId) => {
@@ -21,8 +22,14 @@ export default function CoursesDao(db) {
     return CourseModel.create(newCourse);
   };
 
-  const deleteCourse = (courseId) => {
-    return CourseModel.deleteOne({ _id: courseId });
+  const deleteCourse = async (courseId) => {
+    // Delete all enrollments for this course first
+    await EnrollmentModel.deleteMany({ course: courseId });
+    
+    // Delete the course from MongoDB
+    const result = await CourseModel.findByIdAndDelete(courseId);
+    
+    return result;
   };
 
   const updateCourse = (courseId, courseUpdates) => {
